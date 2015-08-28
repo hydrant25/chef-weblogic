@@ -100,11 +100,16 @@ Chef.resource 'weblogic' do
   property :inventory_path, Path do
     default { ::File.join(home, 'oraInventory') }
   end
+  
+  def manage_java(arg=true)
+    set_or_return(:manage_java, arg, :kind_of => [TrueClass, FalseClass])
+  end
+
   recipe do
     node.default['java']['jdk_version'] = oracle_jdk
     node.default['java']['install_flavor'] = 'oracle'
     node.default['java']['oracle']['accept_oracle_download_terms'] = true
-    include_recipe 'java'
+    include_recipe 'java' unless manage_java
 
     if Gem::Version.new(version) >= Gem::Version.new('12.1.2.0.0')
       include_recipe 'oracle-inventory'
